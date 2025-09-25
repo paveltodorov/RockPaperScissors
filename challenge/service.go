@@ -56,6 +56,16 @@ func (s *Service) Create(challengerID, opponentID, bet int, move string) (*Chall
 		}
 	}
 
+	challenger.Stats.CreatedChallenges++
+	switch move {
+	case "rock":
+		challenger.Stats.RockChoices++
+	case "paper":
+		challenger.Stats.PaperChoices++
+	case "scissors":
+		challenger.Stats.ScissorsChoices++
+	}
+
 	ch := &Challenge{
 		ChallengerID:   challengerID,
 		OpponentID:     opponentID,
@@ -131,31 +141,51 @@ func (s *Service) Accept(challengeID int, move string) (*Challenge, error) {
 	}
 
 	ch.OpponentMove = move
+	switch move {
+	case "rock":
+		opponent.Stats.RockChoices++
+	case "paper":
+		opponent.Stats.PaperChoices++
+	case "scissors":
+		opponent.Stats.ScissorsChoices++
+	}
+
 	result := game.DecideWinnerString(ch.ChallengerMove, ch.OpponentMove)
+	challenger, _ := s.users.GetByID(ch.ChallengerID)
+
+	opponent.Stats.AcceptedChallenges++
 
 	switch result {
 	case game.Tie:
 		// Tie - no money transfer, both players keep their bets
 		ch.Status = "resolved"
 		ch.WinnerID = 0 // No winner in a tie
+		challenger.Stats.Ties++
+		opponent.Stats.Ties++
+		s.users.Update(challenger)
+		s.users.Update(opponent)
 	case game.Player1Wins:
 		// Challenger wins - gets both bets
 		ch.Status = "resolved"
 		ch.WinnerID = ch.ChallengerID
-		winner, _ := s.users.GetByID(ch.ChallengerID)
-		loser, _ := s.users.GetByID(ch.OpponentID)
+		winner := challenger
+		loser := opponent
 		winner.Balance += ch.Bet * 2 // Winner gets both bets
 		loser.Balance -= ch.Bet      // Loser loses their bet
+		winner.Stats.Wins++
+		loser.Stats.Losses++
 		s.users.Update(winner)
 		s.users.Update(loser)
 	case game.Player2Wins:
 		// Opponent wins - gets both bets
 		ch.Status = "resolved"
 		ch.WinnerID = ch.OpponentID
-		winner, _ := s.users.GetByID(ch.OpponentID)
-		loser, _ := s.users.GetByID(ch.ChallengerID)
+		winner := opponent
+		loser := challenger
 		winner.Balance += ch.Bet * 2 // Winner gets both bets
 		loser.Balance -= ch.Bet      // Loser loses their bet
+		winner.Stats.Wins++
+		loser.Stats.Losses++
 		s.users.Update(winner)
 		s.users.Update(loser)
 	}

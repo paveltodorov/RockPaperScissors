@@ -2,7 +2,6 @@ package challenge
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,19 +37,6 @@ func ListHandler(s *Service) gin.HandlerFunc {
 			responses = append(responses, ch.ToResponse())
 		}
 		c.JSON(http.StatusOK, responses)
-	}
-}
-
-func AuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		userIDStr := c.GetHeader("X-User-ID")
-		id, err := strconv.Atoi(userIDStr)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid user"})
-			return
-		}
-		c.Set("user_id", id)
-		c.Next()
 	}
 }
 

@@ -42,3 +42,29 @@ func ListHandler(s *Service) gin.HandlerFunc {
 		c.JSON(http.StatusOK, responses)
 	}
 }
+
+func StatsHandler(s *Service) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user, err := s.GetByID(c.GetInt("user_id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request format"})
+			return
+		}
+
+		response := UserStatsResponse{
+			Wins:   user.Stats.Wins,
+			Losses: user.Stats.Losses,
+			Ties:   user.Stats.Ties,
+
+			RockChoices:     user.Stats.RockChoices,
+			PaperChoices:    user.Stats.PaperChoices,
+			ScissorsChoices: user.Stats.ScissorsChoices,
+
+			AcceptedChallenges: user.Stats.AcceptedChallenges,
+			DeclinedChallenges: user.Stats.DeclinedChallenges,
+			CreatedChallenges:  user.Stats.CreatedChallenges,
+		}
+
+		c.JSON(http.StatusOK, response)
+	}
+}

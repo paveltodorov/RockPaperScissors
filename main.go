@@ -1,14 +1,29 @@
 package main
 
 import (
+	"net/http"
 	"rockpaperscissors/ai"
 	"rockpaperscissors/challenge"
 	"rockpaperscissors/funds"
 	"rockpaperscissors/storage"
 	"rockpaperscissors/user"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
+
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userIDStr := c.GetHeader("X-User-ID")
+		id, err := strconv.Atoi(userIDStr)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid user"})
+			return
+		}
+		c.Set("user_id", id)
+		c.Next()
+	}
+}
 
 func main() {
 	store := storage.NewMemoryStore()
@@ -24,6 +39,7 @@ func main() {
 	r.POST("/login", user.LoginHandler(userSvc))
 	r.POST("/logout", user.LogoutHandler())
 	r.GET("/users", user.ListHandler(userSvc))
+	r.GET("/users/stats", AuthMiddleware(), user.StatsHandler(userSvc))
 
 	// Funds routes
 	r.POST("/deposit", funds.DepositHandler(fundsSvc))
@@ -32,7 +48,7 @@ func main() {
 	// Challenge routes
 	r.POST("/challenges", challenge.CreateHandler(challengeSvc))
 	r.GET("/challenges", challenge.ListHandler(challengeSvc))
-	r.GET("/challenges/pending", challenge.AuthMiddleware(), challenge.ListPendingHandler(challengeSvc))
+	r.GET("/challenges/pending", AuthMiddleware(), challenge.ListPendingHandler(challengeSvc))
 	r.POST("/challenges/accept", challenge.AcceptHandler(challengeSvc))
 	r.POST("/challenges/decline", challenge.DeclineHandler(challengeSvc))
 

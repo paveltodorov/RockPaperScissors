@@ -70,6 +70,9 @@ curl -X POST http://localhost:8080/login \
 # list users
  curl -X GET http://localhost:8080/users   -H "Content-Type: application/json"
 
+# get stats for a specific user
+curl GET  http://localhost:8080/users/stats -H "X-User-ID: 2"
+
 # Create a challenge
 curl -X POST http://localhost:8080/challenges \
   -H "Content-Type: application/json" \
