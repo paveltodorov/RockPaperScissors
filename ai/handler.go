@@ -55,15 +55,39 @@ func AIChallengeHandler(s *Service, challengeSvc *challenge.Service) gin.Handler
 			return
 		}
 
-		// AI makes a move
-		context := &GameContext{
-			OpponentHistory: []string{}, // TO DO: add opponent history
-			BetAmount:       req.Bet,
-			Round:           1,
+		aiPlayer, err := s.users.GetByID(req.AIID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
 		}
 
-		shouldAcceptChallenge := s.ShouldAcceptChallenge(req.Bet, req.Strategy)
+		challenger, err := s.users.GetByID(req.PlayerID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		context := &GameContext{
+			OpponentStats: challenger.Stats,
+			BetAmount:     req.Bet,
+			Round:         1,
+		}
+
+		// Create challenge
+		ch, err := challengeSvc.Create(req.PlayerID, req.AIID, req.Bet, req.Move)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		shouldAcceptChallenge := s.ShouldAcceptChallenge(req.Bet, aiPlayer.Strategy)
 		if !shouldAcceptChallenge {
+			_, err := challengeSvc.Decline(ch.ID)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+
 			c.JSON(http.StatusOK, AIChallengeResponse{
 				Accepted:  false,
 				Success:   true,
@@ -71,25 +95,21 @@ func AIChallengeHandler(s *Service, challengeSvc *challenge.Service) gin.Handler
 				Challenge: nil,
 				AIMove:    "",
 			})
-			return
 		}
 
-		aiMove := s.MakeMove(req.Strategy, context)
-
-		// Create challenge
-		ch, err := challengeSvc.Create(req.AIID, req.PlayerID, req.Bet, aiMove.String())
+		aiMove := s.MakeMove(aiPlayer.Strategy, context)
+		_, err = challengeSvc.Accept(ch.ID, aiMove.String())
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		ch.Status = "resolved" // an AI challenge is always resolved
 
 		c.JSON(http.StatusOK, AIChallengeResponse{
 			Accepted:  true,
 			Success:   true,
-			Message:   "AI challenge created",
+			Message:   "AI challenge accepted",
 			Challenge: ch.ToResponse(),
-			AIMove:    aiMove.String(), // For testing purposes
+			AIMove:    aiMove.String(),
 		})
 	}
 }

@@ -24,7 +24,7 @@ type AIChallengeRequest struct {
 	AIID     int    `json:"ai_id" binding:"required"`
 	PlayerID int    `json:"player_id" binding:"required"`
 	Bet      int    `json:"bet" binding:"required,min=1"`
-	Strategy string `json:"strategy" binding:"required,oneof=random defensive aggressive smart"`
+	Move     string `json:"move"`
 }
 
 type AIChallengeResponse struct {

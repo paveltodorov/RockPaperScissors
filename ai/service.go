@@ -51,9 +51,9 @@ func (s *Service) MakeMove(strategy string, context *GameContext) game.Move {
 }
 
 type GameContext struct {
-	OpponentHistory []string // Previous moves by opponent
-	BetAmount       int      // Current bet amount
-	Round           int      // Current round number
+	OpponentStats user.Stats
+	BetAmount     int
+	Round         int
 }
 
 // randomMove returns a random move
@@ -85,24 +85,23 @@ func (s *Service) aggressiveMove() game.Move {
 
 // smartMove uses basic pattern recognition
 func (s *Service) smartMove(context *GameContext) game.Move {
-	if len(context.OpponentHistory) == 0 {
-		return s.randomMove()
+	moves := map[string]int{
+		"rock":     context.OpponentStats.RockChoices,
+		"paper":    context.OpponentStats.PaperChoices,
+		"scissors": context.OpponentStats.ScissorsChoices,
 	}
 
-	// Count opponent's most common move
-	moveCount := make(map[string]int)
-	for _, move := range context.OpponentHistory {
-		moveCount[move]++
-	}
-
-	// Find most common move and counter it
 	var mostCommon string
-	maxCount := 0
-	for move, count := range moveCount {
+	maxCount := -1
+	for move, count := range moves {
 		if count > maxCount {
 			maxCount = count
 			mostCommon = move
 		}
+	}
+
+	if maxCount == 0 {
+		return s.randomMove() // no moves yet
 	}
 
 	// Counter the most common move

@@ -68,7 +68,7 @@ curl -X POST http://localhost:8080/login \
   -d '{"username":"alice","password":"secret"}'
 
 # list users
- curl -X GET http://localhost:8080/users   -H "Content-Type: application/json"
+curl -X GET http://localhost:8080/users   -H "Content-Type: application/json"
 
 # get stats for a specific user
 curl GET  http://localhost:8080/users/stats -H "X-User-ID: 2"
@@ -81,7 +81,7 @@ curl -X POST http://localhost:8080/challenges \
 # Accept the challenge
 curl -X POST http://localhost:8080/challenges/accept \
   -H "Content-Type: application/json" \
-  -d '{"challenge_id":1,"opponent_id":2,"move":"paper"}'
+  -d '{"challenge_id":1, "move":"paper"}'
 
 curl -X GET http://localhost:8080/challenges
 
@@ -97,7 +97,7 @@ curl -X POST http://localhost:8080/ai/create \
   -d '{"strategy":"smart"}'
 
 # Challenge an AI player
-curl -X POST http://localhost:8080/ai/challenge \
-  -H "Content-Type: application/json" \
-  -d '{"ai_id":3,"player_id":1,"bet":25,"strategy":"smart"}'
+curl -X POST http://localhost:8080/ai/challenge   \
+  -H "Content-Type: application/json"  \
+  -d '{"ai_id":4,"player_id":1,"bet":25,"move":"rock" }'
 ```

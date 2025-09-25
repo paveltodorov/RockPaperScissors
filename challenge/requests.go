@@ -9,7 +9,6 @@ type CreateChallengeRequest struct {
 
 type AcceptChallengeRequest struct {
 	ChallengeID int    `json:"challenge_id" binding:"required"`
-	OpponentID  int    `json:"opponent_id" binding:"required"`
 	Move        string `json:"move" binding:"required,oneof=rock paper scissors"`
 }
 

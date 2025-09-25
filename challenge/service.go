@@ -73,7 +73,8 @@ func (s *Service) Create(challengerID, opponentID, bet int, move string) (*Chall
 		ChallengerMove: move,
 		Status:         "pending",
 	}
-	s.repo.AddChallenge(ch)
+	chId := s.repo.AddChallenge(ch)
+	ch.ID = chId
 	return ch, nil
 }
 
