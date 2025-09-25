@@ -26,6 +26,7 @@ func LoginHandler(s *Service) gin.HandlerFunc {
 }
 
 func LogoutHandler() gin.HandlerFunc {
+	// for now, just return a success message
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "logged out"})
 	}

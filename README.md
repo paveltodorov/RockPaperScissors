@@ -9,6 +9,7 @@ A RESTful API for a multiplayer Rock Paper Scissors game with a betting system, 
 - **Challenge System**: Create, accept, and decline game challenges
 - **Funds Management**: Deposit and withdraw coins
 - **Real-time Game Logic**: Automatic winner determination and money transfer
+- **AI Players**: Play against AI opponents with different strategies
 
 ## API Endpoints
 
@@ -26,6 +27,11 @@ A RESTful API for a multiplayer Rock Paper Scissors game with a betting system, 
 - `GET /challenges` - List all challenges
 - `POST /challenges/accept` - Accept a challenge
 - `POST /challenges/decline` - Decline a challenge
+
+### AI Players
+- `POST /ai/create` - Create a new AI player
+- `GET /ai/list` - List all AI players
+- `POST /ai/challenge` - Challenge an AI player
 
 ## Game Rules
 
@@ -61,6 +67,9 @@ curl -X POST http://localhost:8080/login \
   -H "Content-Type: application/json" \
   -d '{"username":"alice","password":"secret"}'
 
+# list users
+ curl -X GET http://localhost:8080/users   -H "Content-Type: application/json"
+
 # Create a challenge
 curl -X POST http://localhost:8080/challenges \
   -H "Content-Type: application/json" \
@@ -70,4 +79,20 @@ curl -X POST http://localhost:8080/challenges \
 curl -X POST http://localhost:8080/challenges/accept \
   -H "Content-Type: application/json" \
   -d '{"challenge_id":1,"opponent_id":2,"move":"paper"}'
+
+curl -X GET http://localhost:8080/challenges
+
+curl -X POST http://localhost:8080/deposit   -H "Content-Type: application/json"   -d '{"user_id":1, "amount": 30}'
+
+curl -X POST http://localhost:8080/withdraw   -H "Content-Type: application/json"   -d '{"user_id":1, "amount": 30}'
+
+# Create an AI player
+curl -X POST http://localhost:8080/ai/create \
+  -H "Content-Type: application/json" \
+  -d '{"strategy":"smart"}'
+
+# Challenge an AI player
+curl -X POST http://localhost:8080/ai/challenge \
+  -H "Content-Type: application/json" \
+  -d '{"ai_id":3,"player_id":1,"bet":25,"strategy":"smart"}'
 ```

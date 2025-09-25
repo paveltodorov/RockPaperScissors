@@ -54,6 +54,16 @@ func (m *MemoryStore) ListUsers() []*user.User {
 	return list
 }
 
+func (m *MemoryStore) ListAIUsers() []*user.User {
+	var list []*user.User
+	for _, u := range m.users {
+		if u.IsAI {
+			list = append(list, u)
+		}
+	}
+	return list
+}
+
 func (m *MemoryStore) UpdateUser(u *user.User) error {
 	m.users[u.ID] = u
 	return nil

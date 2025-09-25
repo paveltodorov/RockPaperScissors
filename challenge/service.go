@@ -131,14 +131,14 @@ func (s *Service) Accept(challengeID int, move string) (*Challenge, error) {
 	}
 
 	ch.OpponentMove = move
-	result := game.DecideWinner(ch.ChallengerMove, ch.OpponentMove)
+	result := game.DecideWinnerString(ch.ChallengerMove, ch.OpponentMove)
 
 	switch result {
-	case -1:
+	case game.Tie:
 		// Tie - no money transfer, both players keep their bets
 		ch.Status = "resolved"
 		ch.WinnerID = 0 // No winner in a tie
-	case 0:
+	case game.Player1Wins:
 		// Challenger wins - gets both bets
 		ch.Status = "resolved"
 		ch.WinnerID = ch.ChallengerID
@@ -148,7 +148,7 @@ func (s *Service) Accept(challengeID int, move string) (*Challenge, error) {
 		loser.Balance -= ch.Bet      // Loser loses their bet
 		s.users.Update(winner)
 		s.users.Update(loser)
-	case 1:
+	case game.Player2Wins:
 		// Opponent wins - gets both bets
 		ch.Status = "resolved"
 		ch.WinnerID = ch.OpponentID

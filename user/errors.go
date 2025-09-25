@@ -2,7 +2,6 @@ package user
 
 import "fmt"
 
-// Business logic errors for user
 type UserNotFoundError struct {
 	UserID int
 }

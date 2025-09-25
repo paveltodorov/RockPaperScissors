@@ -9,11 +9,16 @@ type Repository interface {
 	FindUserByUsername(username string) (*User, bool)
 	FindUserByID(id int) (*User, bool)
 	ListUsers() []*User
+	ListAIUsers() []*User
 	UpdateUser(u *User) error
 }
 
 type Service struct {
 	repo Repository
+}
+
+func (s *Service) ListAIUsers() []*User {
+	return s.repo.ListAIUsers()
 }
 
 func NewService(r Repository) *Service {
@@ -33,9 +38,14 @@ func (s *Service) Login(username, password string) (*User, error) {
 	}
 
 	// Create new user
-	u := &User{Username: username, Password: password, Balance: DefaultBalance}
-	s.repo.AddUser(u)
+	u := &User{Username: username, Password: password, Balance: DefaultBalance, Strategy: "", IsAI: false}
+	userID := s.repo.AddUser(u)
+	u.ID = userID
 	return u, nil
+}
+
+func (s *Service) AddUser(u *User) int {
+	return s.repo.AddUser(u)
 }
 
 func (s *Service) validateCredentials(username, password string) error {

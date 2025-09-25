@@ -2,7 +2,6 @@ package challenge
 
 import "fmt"
 
-// Business logic errors
 type ValidationError struct {
 	Field   string
 	Message string
