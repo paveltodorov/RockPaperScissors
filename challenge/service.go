@@ -190,3 +190,14 @@ func (s *Service) Decline(challengeID int) (*Challenge, error) {
 func (s *Service) List() []*Challenge {
 	return s.repo.ListChallenges()
 }
+
+func (s *Service) ListPendingByUserID(userID int) ([]*Challenge, error) {
+	challenges := s.repo.ListChallenges()
+	var pendingChallenges []*Challenge
+	for _, challenge := range challenges {
+		if challenge.Status == "pending" && (challenge.ChallengerID == userID || challenge.OpponentID == userID) {
+			pendingChallenges = append(pendingChallenges, challenge)
+		}
+	}
+	return pendingChallenges, nil
+}

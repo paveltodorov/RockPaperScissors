@@ -32,6 +32,7 @@ func main() {
 	// Challenge routes
 	r.POST("/challenges", challenge.CreateHandler(challengeSvc))
 	r.GET("/challenges", challenge.ListHandler(challengeSvc))
+	r.GET("/challenges/pending", challenge.AuthMiddleware(), challenge.ListPendingHandler(challengeSvc))
 	r.POST("/challenges/accept", challenge.AcceptHandler(challengeSvc))
 	r.POST("/challenges/decline", challenge.DeclineHandler(challengeSvc))
 

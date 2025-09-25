@@ -2,6 +2,7 @@ package challenge
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,6 +33,34 @@ func CreateHandler(s *Service) gin.HandlerFunc {
 func ListHandler(s *Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		challenges := s.List()
+		var responses []*ChallengeResponse
+		for _, ch := range challenges {
+			responses = append(responses, ch.ToResponse())
+		}
+		c.JSON(http.StatusOK, responses)
+	}
+}
+
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userIDStr := c.GetHeader("X-User-ID")
+		id, err := strconv.Atoi(userIDStr)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid user"})
+			return
+		}
+		c.Set("user_id", id)
+		c.Next()
+	}
+}
+
+func ListPendingHandler(s *Service) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		challenges, err := s.ListPendingByUserID(c.GetInt("user_id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 		var responses []*ChallengeResponse
 		for _, ch := range challenges {
 			responses = append(responses, ch.ToResponse())

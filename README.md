@@ -82,6 +82,8 @@ curl -X POST http://localhost:8080/challenges/accept \
 
 curl -X GET http://localhost:8080/challenges
 
+curl -X GET http://localhost:8080/challenges/pending -H "X-User-ID: 1"
+
 curl -X POST http://localhost:8080/deposit   -H "Content-Type: application/json"   -d '{"user_id":1, "amount": 30}'
 
 curl -X POST http://localhost:8080/withdraw   -H "Content-Type: application/json"   -d '{"user_id":1, "amount": 30}'
